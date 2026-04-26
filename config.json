@@ -1,0 +1,16 @@
+{
+    "instances": [
+        {
+            "name": "qbit1",
+            "url": "http://127.0.0.1:8080",
+            "username": "admin",
+            "password": "123456"
+        },
+        {
+            "name": "qbit2",
+            "url": "http://127.0.0.2:8080",
+            "username": "admin",
+            "password": "123456"
+        }
+    ]
+}
