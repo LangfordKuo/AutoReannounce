@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, 'config.json')
@@ -80,6 +81,19 @@ def get_torrents(base_url, cookie_str):
     return data.get('torrents', {})
 
 
+def reannounce(base_url, cookie_str, torrent_hash):
+    url = f"{base_url}/api/v2/torrents/reannounce"
+    headers = {
+        'accept': 'text/javascript, text/html, application/xml, text/xml, */*',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'x-requested-with': 'XMLHttpRequest',
+        'cookie': cookie_str,
+        'Referer': f"{base_url}/"
+    }
+    resp = requests.post(url, data=f'hashes={torrent_hash}', headers=headers)
+    return resp.status_code == 200
+
+
 def delete_torrent(base_url, cookie_str, torrent_hash):
     url = f"{base_url}/api/v2/torrents/delete"
     headers = {
@@ -145,11 +159,16 @@ def process_instance(instance, idx, total_instances):
         score = progress * 100 * ratio
 
         if score >= DELETE_THRESHOLD:
+            print(f"  [待删除] {name_torrent}")
+            print(f"           hash: {infohash}")
+            print(f"           进度: {progress * 100:.1f}%  分享率: {ratio:.4f}  得分: {score:.1f}%")
+            # 先强制汇报一次
+            r_ok = reannounce(base_url, cookie, infohash)
+            print(f"           强制汇报：{'成功' if r_ok else '失败'}，等待 3 秒后删除...")
+            time.sleep(3)
+            # 再删除种子和文件
             success = delete_torrent(base_url, cookie, infohash)
-            status = "已删除" if success else "删除失败"
-            print(f"  [删除] {name_torrent}")
-            print(f"         hash: {infohash}")
-            print(f"         进度: {progress * 100:.1f}%  分享率: {ratio:.4f}  得分: {score:.1f}%  {status}")
+            print(f"           删除：{'已删除' if success else '删除失败'}")
             delete_count += 1
         else:
             skip_count += 1
