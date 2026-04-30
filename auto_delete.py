@@ -177,12 +177,12 @@ def process_instance(instance, idx, total_instances):
             print(f"           进度: {progress * 100:.1f}%  分享率: {ratio:.4f}  得分: {score:.1f}%")
             # 第一步：暂停种子
             s_ok = stop_torrent(base_url, cookie, infohash)
-            print(f"           暂停：{'成功' if s_ok else '失败'}，等待 3 秒...")
-            time.sleep(3)
+            print(f"           暂停：{'成功' if s_ok else '失败'}，等待 10 秒...")
+            time.sleep(10)
             # 第二步：强制汇报
             r_ok = reannounce(base_url, cookie, infohash)
-            print(f"           强制汇报：{'成功' if r_ok else '失败'}，等待 3 秒后删除...")
-            time.sleep(3)
+            print(f"           强制汇报：{'成功' if r_ok else '失败'}，等待 10 秒后删除...")
+            time.sleep(10)
             # 第三步：删除种子和文件
             success = delete_torrent(base_url, cookie, infohash)
             print(f"           删除：{'已删除' if success else '删除失败'}")
